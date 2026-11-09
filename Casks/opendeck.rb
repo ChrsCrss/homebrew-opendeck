@@ -15,7 +15,7 @@ cask "opendeck" do
     strategy :github_latest
   end
 
-  depends_on macos: ">= :big_sur"
+  depends_on :macos
 
   app "OpenDeck.app"
 
@@ -23,13 +23,13 @@ cask "opendeck" do
   # block the first launch of every update. Drop the quarantine flag instead.
   postflight do
     system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/OpenDeck.app"],
+                   args:         ["-dr", "com.apple.quarantine", "#{appdir}/OpenDeck.app"],
                    must_succeed: false
   end
 
   zap trash: [
     "~/Library/Application Support/opendeck",
-    "~/Library/Logs/opendeck",
     "~/Library/Caches/opendeck",
+    "~/Library/Logs/opendeck",
   ]
 end
