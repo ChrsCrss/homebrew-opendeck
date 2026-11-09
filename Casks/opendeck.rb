@@ -21,10 +21,10 @@ cask "opendeck" do
 
   # OpenDeck releases are ad-hoc signed and not notarized, so Gatekeeper would
   # block the first launch of every update. Drop the quarantine flag instead.
-  postflight do
-    system_command "/usr/bin/xattr",
-                   args:         ["-dr", "com.apple.quarantine", "#{appdir}/OpenDeck.app"],
-                   must_succeed: false
+  postflight_steps do
+    run "/usr/bin/xattr",
+        args:         ["-dr", "com.apple.quarantine", "{{appdir}}/OpenDeck.app"],
+        must_succeed: false
   end
 
   zap trash: [
