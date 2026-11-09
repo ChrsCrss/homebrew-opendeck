@@ -1,4 +1,4 @@
-# opendeck-homebrew-tap
+# homebrew-tap-opendeck
 
 Homebrew tap for OpenDeck on macOS.
 
@@ -7,9 +7,9 @@ Homebrew tap for OpenDeck on macOS.
 [OpenDeck](https://github.com/nekename/OpenDeck) has no official cask. This tap tracks its GitHub releases; a workflow checks for a new release every 12 hours and updates the cask automatically.
 
 ```sh
-brew tap ChrsCrss/opendeck https://github.com/ChrsCrss/opendeck-homebrew-tap
-brew trust ChrsCrss/opendeck
-brew install --cask ChrsCrss/opendeck/opendeck
+brew tap ChrsCrss/tap-opendeck
+brew trust ChrsCrss/tap-opendeck
+brew install --cask ChrsCrss/tap-opendeck/opendeck
 # --adopt only works if the installed app has the same version as the cask
 ```
 
