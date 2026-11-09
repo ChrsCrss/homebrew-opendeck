@@ -1,0 +1,51 @@
+name: update-opendeck
+
+on:
+  schedule:
+    - cron: "17 */12 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump cask to latest OpenDeck release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cask=Casks/opendeck.rb
+          latest=$(gh api repos/nekename/OpenDeck/releases/latest --jq .tag_name | sed 's/^v//')
+          current=$(sed -nE 's/^  version "([^"]+)"/\1/p' "$cask")
+          echo "current=$current latest=$latest"
+
+          if [ -n "$latest" ] && [ "$latest" != "$current" ]; then
+            base="https://github.com/nekename/OpenDeck/releases/download/v${latest}"
+            arm=$(curl -fsSL "$base/OpenDeck_${latest}_aarch64.dmg" | sha256sum | cut -d' ' -f1)
+            intel=$(curl -fsSL "$base/OpenDeck_${latest}_x64.dmg" | sha256sum | cut -d' ' -f1)
+            sed -i -E "s/^  version \".*\"/  version \"${latest}\"/" "$cask"
+            sed -i -E "s/(sha256 arm:   \")[0-9a-f]+/\1${arm}/" "$cask"
+            sed -i -E "s/(         intel: \")[0-9a-f]+/\1${intel}/" "$cask"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add "$cask"
+            git commit -m "opendeck ${latest}"
+          fi
+
+      - name: Keep schedule alive
+        run: |
+          # GitHub disables scheduled workflows after 60 days without repo activity.
+          age=$(( $(date +%s) - $(git log -1 --format=%ct) ))
+          if [ "$age" -gt $(( 45 * 86400 )) ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit --allow-empty -m "chore: keep scheduled workflow active"
+          fi
+
+      - name: Push
+        run: git push
